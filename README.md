@@ -1,1 +1,1 @@
-This blog is to record the process of learning Frontend
+This blog is to record the process of learning front end, powered by gatsby
