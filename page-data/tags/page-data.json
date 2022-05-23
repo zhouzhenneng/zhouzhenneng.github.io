@@ -1,1 +1,5 @@
-{"componentChunkName":"component---src-pages-tags-js","path":"/tags/","result":{"data":{"allMdx":{"edges":[{"node":{"excerpt":"本博客基于 React 框架  Gatsby  搭配  GraphQL  开发。 UNSW MIT在读，未来准备从事前端开发 搭建博客主要想要记录自己的学习历程 特别鸣谢unique.mo提供的gatsby主题☞ https://github.com/uniquemo…","fields":{"slug":"/about/"},"frontmatter":{"date":"2020-01-13","title":"My Blog's About Page","description":"My profile page~","tags":null}}}]}},"pageContext":{}},"staticQueryHashes":["440568431","63159454","946521183"]}
+{
+    "componentChunkName": "component---src-pages-tags-js",
+    "path": "/tags/",
+    "result": {"data":{"allMdx":{"edges":[{"node":{"excerpt":"本博客基于 React 框架  Gatsby  搭配  GraphQL  开发。 UNSW MIT在读，未来准备从事前端开发 搭建博客主要想要记录自己的学习历程 特别鸣谢unique.mo提供的gatsby主题☞ https://github.com/uniquemo…","fields":{"slug":"/about/"},"frontmatter":{"date":"2020-01-13","title":"My Blog's About Page","description":"My profile page~","tags":null}}}]}},"pageContext":{}},
+    "staticQueryHashes": ["440568431","63159454","946521183"]}

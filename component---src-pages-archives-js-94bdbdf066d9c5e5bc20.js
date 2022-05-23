@@ -1,2 +1,0 @@
-(self.webpackChunkgatsby_blog=self.webpackChunkgatsby_blog||[]).push([[454],{8042:function(e,t,a){"use strict";a.r(t);var l=a(7294),n=a(3502),c=a(2335);t.default=function(e){var t=e.location;return l.createElement(n.Z,{location:t},l.createElement(c.Z,{title:"Archives page"}),l.createElement("div",null,"to do"))}}}]);
-//# sourceMappingURL=component---src-pages-archives-js-94bdbdf066d9c5e5bc20.js.map
