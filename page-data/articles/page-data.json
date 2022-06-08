@@ -1,5 +1,5 @@
 {
     "componentChunkName": "component---src-pages-articles-js",
     "path": "/articles/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"周大丢的blog"}},"allMdx":{"edges":[]}},"pageContext":{}},
+    "result": {"data":{"site":{"siteMetadata":{"title":"周大丢的blog"}},"allMdx":{"edges":[{"node":{"excerpt":"在面试中会经常被问：如何实现一个Event，如果你还不知道什么是发布订阅模式，一起学起来~ 发布订阅模式 Pub-sub pattern 发布订阅是一种主流框架都采用的一种设计模式，而EventHub是基于这种设计模式实现的一种实例.\n \n举个例子，有A,B,C…","fields":{"slug":"/0001_EventHub发布订阅模式/"},"frontmatter":{"date":"2022-06-04","title":"EventHub发布订阅模式","description":"介绍发布订阅模式，手写eventhub并测试","tags":["javascript"]}}}]}},"pageContext":{}},
     "staticQueryHashes": ["440568431","63159454","946521183"]}
