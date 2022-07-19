@@ -1,5 +1,5 @@
 {
     "componentChunkName": "component---src-templates-tag-posts-js",
     "path": "/tags/CSS",
-    "result": {"data":{"site":{"siteMetadata":{"title":"周大丢的blog","author":"周大丢"}},"mdx":null},"pageContext":{"slug":"CSS","posts":[{"node":{"fields":{"slug":"/0003_CSS画三角形/"},"frontmatter":{"title":"CSS画一个三角形","layout":"blog-post","tags":["CSS"],"date":"2022-06-04","description":"纯CSS实现一个三角形"}}}]}},
+    "result": {"data":{"site":{"siteMetadata":{"title":"周大丢的blog","author":"周大丢"}},"mdx":null},"pageContext":{"slug":"CSS","posts":[{"node":{"fields":{"slug":"/0003_CSS画三角形/"},"frontmatter":{"title":"CSS画一个三角形","layout":"blog-post","tags":["CSS"],"date":"2022-06-02","description":"纯CSS实现一个三角形"}}}]}},
     "staticQueryHashes": ["440568431","946521183"]}

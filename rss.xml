@@ -1,4 +1,288 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[周大丢的博客]]></title><description><![CDATA[A personal blog powered by gatsby, styled components.]]></description><link>https://stayhungry.com.cn</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 12 Jul 2022 16:10:51 GMT</lastBuildDate><item><title><![CDATA[手写防抖节流]]></title><description><![CDATA[面试中，经常会让你手写防抖和节流，如果你还不知道，赶紧学起来吧 什么是防抖和节流 关于防抖（debounce）和节流（throttle）有个经典的比喻：
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[周大丢的博客]]></title><description><![CDATA[A personal blog powered by gatsby, styled components.]]></description><link>https://stayhungry.com.cn</link><generator>GatsbyJS</generator><lastBuildDate>Tue, 19 Jul 2022 17:08:00 GMT</lastBuildDate><item><title><![CDATA[同源策略和跨域]]></title><description><![CDATA[浏览器的同源策略(Same origin policy)是由Netscape公司1995引入的，主要是为了防止XSS（跨站脚本），CSFR（跨站请求伪造）等攻击。但是有时候需要跨域，所以本文会介绍几种常见的方法去规避浏览器的同源策略。 概念 假设，你在浏览器上打开A,B…]]></description><link>https://stayhungry.com.cn/articles/0006_同源策略和跨域/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0006_同源策略和跨域/</guid><pubDate>Mon, 18 Jul 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;p&gt;&lt;a href=&quot;#%E6%A6%82%E5%BF%B5&quot;&gt;概念&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;&lt;a href=&quot;#%E9%99%90%E5%88%B6%E8%8C%83%E5%9B%B4&quot;&gt;限制范围&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;&lt;a href=&quot;#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B7%A8%E5%9F%9F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88&quot;&gt;常见的几种跨域解决方案&lt;/a&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#jsonp&quot;&gt;JSONP&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#cors&quot;&gt;CORS&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82&quot;&gt;简单请求&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E9%9D%9E%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82&quot;&gt;非简单请求&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86&quot;&gt;Nginx反向代理&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#node%E4%B8%AD%E9%97%B4%E4%BB%B6&quot;&gt;node中间件&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot;&gt;总结&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;浏览器的同源策略(Same origin policy)是由Netscape公司1995引入的，主要是为了防止XSS（跨站脚本），CSFR（跨站请求伪造）等攻击。但是有时候需要跨域，所以本文会介绍几种常见的方法去规避浏览器的同源策略。&lt;/p&gt;&lt;h2 id=&quot;概念&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E6%A6%82%E5%BF%B5&quot; aria-label=&quot;概念 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;概念&lt;/h2&gt;&lt;p&gt;假设，你在浏览器上打开A,B两个网页，A是一家银行网站， B是百度首页，此时B网站想要访问A网站的Cookie会发生什么？显然B网站无法获取到A网站的Cookie,因为这两个网页“不同源”。那什么是同源呢？&lt;br/&gt;
+同源的定义是：&lt;strong&gt;如果两个URL的protocol(协议)、port(端口)和host(主机/域名)都相同，则这两个URL是同源的。&lt;/strong&gt;&lt;br/&gt;
+让我们来看看一个域名的组成：&lt;br/&gt;
+&lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position:relative;display:block;margin-left:auto;margin-right:auto;max-width:590px&quot;&gt;
+      &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom:22.2972972972973%;position:relative;bottom:0;left:0;background-image:url(&amp;#x27;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAEABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAEF/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/9oADAMBAAIQAxAAAAHdgyC//8QAFBABAAAAAAAAAAAAAAAAAAAAEP/aAAgBAQABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAEP/aAAgBAwEBPwE//8QAFBEBAAAAAAAAAAAAAAAAAAAAEP/aAAgBAgEBPwE//8QAFBABAAAAAAAAAAAAAAAAAAAAEP/aAAgBAQAGPwJ//8QAFhABAQEAAAAAAAAAAAAAAAAAAQAQ/9oACAEBAAE/IcG//9oADAMBAAIAAwAAABAP7//EABURAQEAAAAAAAAAAAAAAAAAAAAB/9oACAEDAQE/EKj/xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAECAQE/ED//xAAZEAEAAwEBAAAAAAAAAAAAAAABABGBIXH/2gAIAQEAAT8QXu1FafYybP/Z&amp;#x27;);background-size:cover;display:block&quot;&gt;&lt;/span&gt;
+  &lt;img class=&quot;gatsby-resp-image-image&quot; alt=&quot;域名的组成&quot; title=&quot;域名的组成&quot; src=&quot;/static/7f527ed3bf4b065ef10296998cf9a2e9/1c72d/006%E5%9F%9F%E5%90%8D.jpg&quot; srcSet=&quot;/static/7f527ed3bf4b065ef10296998cf9a2e9/a80bd/006%E5%9F%9F%E5%90%8D.jpg 148w,/static/7f527ed3bf4b065ef10296998cf9a2e9/1c91a/006%E5%9F%9F%E5%90%8D.jpg 295w,/static/7f527ed3bf4b065ef10296998cf9a2e9/1c72d/006%E5%9F%9F%E5%90%8D.jpg 590w,/static/7f527ed3bf4b065ef10296998cf9a2e9/a8a14/006%E5%9F%9F%E5%90%8D.jpg 885w,/static/7f527ed3bf4b065ef10296998cf9a2e9/ad68d/006%E5%9F%9F%E5%90%8D.jpg 1170w&quot; sizes=&quot;(max-width: 590px) 100vw, 590px&quot; style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;/&gt;
+    &lt;/span&gt;
+URL &lt;a href=&quot;http://store.company.com/dir/page.html&quot;&gt;http://store.company.com/dir/page.html&lt;/a&gt;  的几个同源/不同源实例如下：
+| URL | 结果 | 原因 |
+| --- | --- | --- |
+| &lt;a href=&quot;http://store.company.com/dir2/other.html&quot;&gt;http://store.company.com/dir2/other.html&lt;/a&gt; | 同源 | 只有路径不同 |
+| &lt;a href=&quot;http://store.company.com/dir/inner/another.html&quot;&gt;http://store.company.com/dir/inner/another.html&lt;/a&gt; | 同源 | 只有路径不同 |
+| &lt;a href=&quot;https://store.company.com/secure.html&quot;&gt;https://store.company.com/secure.html&lt;/a&gt; | 不同源 | 协议不同 |
+| &lt;a href=&quot;http://store.company.com:81/dir/etc.html&quot;&gt;http://store.company.com:81/dir/etc.html&lt;/a&gt; | 不同源 | 端口不同（http默认端口号是80） |
+| &lt;a href=&quot;http://news.company.com/dir/other.html&quot;&gt;http://news.company.com/dir/other.html&lt;/a&gt; | 不同源 | 主机不同 |&lt;/p&gt;&lt;h2 id=&quot;限制范围&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E9%99%90%E5%88%B6%E8%8C%83%E5%9B%B4&quot; aria-label=&quot;限制范围 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;限制范围&lt;/h2&gt;&lt;p&gt;同源策略一般是限制一下三种行为：    &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;1. Cookie, LocalStorage和IndexDB无法读取  &lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;2. DOM无法获得  &lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;3. AJAX请求发送后，响应会被浏览器拦截      &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;但是有三个标签是允许跨域加载资源的：   &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;&quot; data-index=&quot;1&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;1. \&amp;lt;img src=xxx\&amp;gt;  &lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;2. \&amp;lt;link href=xxx\&amp;gt;  &lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;3. \&amp;lt;script src=xxx\&amp;gt;   &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;需要特别注意的两点：  &lt;/p&gt;&lt;ol&gt;&lt;li&gt;如果是协议或者端口不一样造成的跨域问题，前台是无法解决的；&lt;/li&gt;&lt;li&gt;请求跨域了，我们的请求到底发出去了没有？是没有发出去，还是响应被拦截？其实跨域请求并不是请求发不出去，请求是可以发送到服务器的，但是服务器返回的结果被浏览器拦截了，所以跨域并不能完全解决CSRF，因为请求是发出去的；  &lt;/li&gt;&lt;li&gt;为什么通过表单的方式可以发起跨域请求，而通过AJAX就不能？因为AJAX可以获取响应，而表单并不会获取到新的内容。  &lt;/li&gt;&lt;/ol&gt;&lt;h2 id=&quot;常见的几种跨域解决方案&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%B8%B8%E8%A7%81%E7%9A%84%E5%87%A0%E7%A7%8D%E8%B7%A8%E5%9F%9F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88&quot; aria-label=&quot;常见的几种跨域解决方案 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;常见的几种跨域解决方案&lt;/h2&gt;&lt;h3 id=&quot;jsonp&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#jsonp&quot; aria-label=&quot;jsonp permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;JSONP&lt;/h3&gt;&lt;p&gt;JSONP实现跨域就是利用我们上面提到的浏览器允许\&amp;lt;script&amp;gt;元素向跨源网址发出请求， 具体实现就是通过在网页添加一个\&amp;lt;script&amp;gt;元素，向服务器发送请求JSON数据，服务器收到请求后，将数据放到一个指定名字的回调函数里传回来。  &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;javascript&quot; data-index=&quot;2&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;addScriptTag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;) {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;createElement&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;#x27;script&amp;#x27;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;setAttribute&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;type&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;text/javascript&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;src&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;document&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;body&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;appendChild&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk12&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;onload&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; () {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;addScriptTag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;#x27;http://example.com/ip?callback=foo&amp;#x27;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;); &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;//指定回调函数&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk3&quot;&gt;//数据放到回调函数传回&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;) {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;#x27;Your public IP address is: &amp;#x27;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; + &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;ip&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;};&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：简单适用，老式浏览器全部支持，服务器改造非常小。&lt;br/&gt;
+&lt;strong&gt;缺点&lt;/strong&gt;：仅支持get方法具有局限性,不安全可能会遭受XSS攻击。  &lt;/p&gt;&lt;h3 id=&quot;cors&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#cors&quot; aria-label=&quot;cors permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;CORS&lt;/h3&gt;&lt;p&gt;CORS是需要服务器和浏览器同时支持的，但是所有浏览器都支持CORS，所有我们只要让后端实现了CORS，就实现了跨域。因为对于用户而言，整个跨域通信的过程和同源的AJAX通信没有什么差别，浏览器一旦发现AJAX跨域请求，就会自动在request的头部添加一些信息，但是这一切对于用户都是透明的。&lt;br/&gt;
+CORS请求一般分为两种，简单请求（sample request）和非简单请求（not-so-simple request）。  &lt;/p&gt;&lt;h3 id=&quot;简单请求&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82&quot; aria-label=&quot;简单请求 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;简单请求&lt;/h3&gt;&lt;p&gt;一般来说，满足下面两点的就会被视为简单请求：&lt;/p&gt;&lt;ol&gt;&lt;li&gt;使用GET, POST, HEAD其中一种方法；&lt;/li&gt;&lt;li&gt;HTPP的头部信息不超过以下几种字段(除了被用户代理&lt;strong&gt;自动设置&lt;/strong&gt;的首部字段（例如 Connection，User-Agent）和在 Fetch 规范中定义为 禁用首部名称 的其他首部)：  &lt;ul&gt;&lt;li&gt;Accept   &lt;/li&gt;&lt;li&gt;Accept-Language   &lt;/li&gt;&lt;li&gt;Content-Language&lt;/li&gt;&lt;li&gt;Last-Event-ID   &lt;/li&gt;&lt;li&gt;Content-Type仅限以下三种:    &lt;ul&gt;&lt;li&gt;text/plain&lt;/li&gt;&lt;li&gt;multipart/form-data&lt;/li&gt;&lt;li&gt;application/x-www-form-urlencoded    &lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：所以如果Content-Type:application/json就是非简单请求了。&lt;br/&gt;
+对于一个简单请求，浏览器会直接发出一个CORS请求，就是在HTTP头部增加一个Origin字段，这个字段是浏览器发现这是个跨域AJAX简单请求而自动添加的，对用户透明：   &lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;GET /cors HTTP/1.1&lt;br/&gt;
+Origin: &lt;a href=&quot;http://api.bob.com&quot;&gt;http://api.bob.com&lt;/a&gt;&lt;br/&gt;
+Host: api.alice.com&lt;br/&gt;
+Accept-Language: en-US&lt;br/&gt;
+Connection: keep-alive&lt;br/&gt;
+User-Agent: Mozilla/5.0…     &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;为什么要添加这个Origina字段呢？因为这是向服务器端表明本次请求来自那个源（协议+域名+端口）,服务器会查找这个源在不在许可范围之内，从而决定要不要同意这次请求。&lt;br/&gt;
+如果不在许可范围类，服务器也会返回一个正常的HTTP response,浏览器会检查response头部信息，如果没有找到Access-Control-Allow-Origin字段，就知道出错了，会抛出一个错误，这个错误会被XHLHttpRequest的onerror回调函数捕获。这里特别要注意的一个点就是，这个错误是无法通过状态码识别出来的，因为是正常的response，所以状态码很可能是200。&lt;br/&gt;
+如果在许可范围之类，返回的response的头部信息里面会多出以下几个字段：   &lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;Access-Control-Allow-Origin: &lt;a href=&quot;http://api.bob.com&quot;&gt;http://api.bob.com&lt;/a&gt;&lt;br/&gt;
+Access-Control-Allow-Credentials: true&lt;br/&gt;
+Access-Control-Expose-Headers: FooBar&lt;br/&gt;
+Content-Type: text/html; charset=utf-8    &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;需要说明的是：   &lt;/p&gt;&lt;ol&gt;&lt;li&gt;Access-Control-Allow-Origin是必选字段，这个值要不是origin字段的值，要不就是*，表示接收任何域名的跨域请求；   &lt;/li&gt;&lt;li&gt;Access-Control-Allow-Credentials可选字段，表示是否允许发送Cookie，true表示服务器允许cookie包含在请求中一起发送给服务器，需要注意的是发送Cookie必须浏览器和服务器同时允许，只有一方允许是发送不了的，开发者需要在AJAZ请求中打开withCredentials属性；  &lt;/li&gt;&lt;li&gt;Access-Control-Expose-Headers可选字段，CORS请求默认只能拿到6个基本字段，如果想要拿到其他的字段，就要在这里设置。   &lt;/li&gt;&lt;/ol&gt;&lt;h3 id=&quot;非简单请求&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E9%9D%9E%E7%AE%80%E5%8D%95%E8%AF%B7%E6%B1%82&quot; aria-label=&quot;非简单请求 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;非简单请求&lt;/h3&gt;&lt;p&gt;对于不同时满足上面两个条件的就属于非简单请求，另外MDN中还提及：  &lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;规范要求，对那些可能对服务器数据产生副作用的 HTTP 请求方法（特别是 GET 以外的 HTTP 请求，或者搭配某些 MIME 类型 的 POST 请求），浏览器必须首先使用 OPTIONS 方法发起一个预检请求（preflight request），从而获知服务端是否允许该跨源请求。服务器确认允许之后，才发起实际的 HTTP 请求。在预检请求的返回中，服务器端也可以通知客户端，是否需要携带身份凭证（包括 Cookies 和 HTTP 认证 相关数据）。  &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;&lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position:relative;display:block;margin-left:auto;margin-right:auto;max-width:590px&quot;&gt;
+      &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/d7e70/0006_CORS%E9%A2%84%E6%A3%80.png&quot; style=&quot;display:block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom:77.70270270270271%;position:relative;bottom:0;left:0;background-image:url(&amp;#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB4klEQVQ4y5WS227TQBCG/f5PwRNwhdQLuChUoqBWtLShKWATOz6tvT7EOZDEpx/9UzYyaQxipNWsd3b+/TwzVtt18FUGe67wI0jE66ICre87RLqAG2UI9UK8ykoYK6oVZmGKICnhxTn8OIO1+bnF1TeFsw+PePHyNd58mmEyU5Kw3W5x4yQ4v/Px6uIOb+9D3Ngxn5L41FV4/1Xj7PIB7yYBLqcRrH1d49FLMXE1rr7MxJOE1rYNvvsanx2FjxMHt3YMO9AHQl/lcv966uLWjvDgJrCeEls0dY1qsRDfdR2appFziTUNFow1Nbq2PQjyHuOr1QqbzUa+rb7vDxe01hJcLpcIwxBBEMjFqqokNma73Q77/V72ImgWE/kiXzJnhpKCaZrC8zz4vi8PGq+U+lPwqaO9kI0ZY0xio7hIRc8zxvh9UnD4bRYtSRIhmc/nQmVKQp/n+TjhmCCbYkphzOxZ5/8mzLJMGsY6k4y1JDXF/lrDodBQkEJmTDhGdV2LN3n/JDw2dphNICWJWDtSk4zlOEm4Xq9hBt2MT/t7kJlMCi7+Ju/Sk5T0z+aQxleLopAasZtRFMm+LEs5HzMKk/4ZIQOGbLhIwV8dqy/pWE8RPB6BUxbHMRzHka4OJ+A4j/tfV9/U5kHl5NUAAAAASUVORK5CYII=&amp;#x27;);background-size:cover;display:block&quot;&gt;&lt;/span&gt;
+  &lt;img class=&quot;gatsby-resp-image-image&quot; alt=&quot;CORS flow&quot; title=&quot;CORS flow&quot; src=&quot;/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/fcda8/0006_CORS%E9%A2%84%E6%A3%80.png&quot; srcSet=&quot;/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/12f09/0006_CORS%E9%A2%84%E6%A3%80.png 148w,/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/e4a3f/0006_CORS%E9%A2%84%E6%A3%80.png 295w,/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/fcda8/0006_CORS%E9%A2%84%E6%A3%80.png 590w,/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/efc66/0006_CORS%E9%A2%84%E6%A3%80.png 885w,/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/c83ae/0006_CORS%E9%A2%84%E6%A3%80.png 1180w,/static/ba91e7eb58b5d0d2d7ff2f66f0e83918/d7e70/0006_CORS%E9%A2%84%E6%A3%80.png 1286w&quot; sizes=&quot;(max-width: 590px) 100vw, 590px&quot; style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;/&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;&lt;br/&gt;
+非简单请求会增加一个preflight请求，浏览器会询问服务器检查域名是否在许可名单里面，还有可以使用那些HTTP请求动作和头信息字段，只有得到肯定答复，浏览器才会发出请求，否则抛出错误。例如： &lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;var url = ’&lt;a href=&quot;http://www.baidu.com/cors&amp;#x27;&quot;&gt;http://www.baidu.com/cors’&lt;/a&gt;;&lt;br/&gt;
+var xhr = new XMLHttpRequest();&lt;br/&gt;
+xhr.open(‘PUT’, url, true);&lt;br/&gt;
+xhr.setRequestHeader(‘X-Custom-Header’, ‘value’);&lt;br/&gt;
+xhr.send();     &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;浏览器发现PUT方法（还有DELETE、CONNECT、OPTIONS、TRACE、PATCH也会触发）是非简单请求，还有自定义头部信息X-Custom-Header，就会自动在正式请求之前，发送一个预检请求，预检请求要求使用OPTIONS方法，发送一个请求到服务器，以知悉服务器是否允许该请求。    &lt;/p&gt;&lt;p&gt;&lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position:relative;display:block;margin-left:auto;margin-right:auto;max-width:590px&quot;&gt;
+      &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/055043d5ae4a4518a0766584c8ce3c4e/081ff/0006_%E9%A2%84%E6%A3%8001.png&quot; style=&quot;display:block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom:78.37837837837837%;position:relative;bottom:0;left:0;background-image:url(&amp;#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAAACXBIWXMAAAsTAAALEwEAmpwYAAACDElEQVQ4y5WUaY7bMAyFff/zFD1I+2eATLwnlhd5U7TZkl5BTR00TTptCQjarI/ko+TE7RuwW8i6gp8m2LbDWlbwfIRiLWTfI4xTXNOshRs4FtZiEwLbwDGnGRznMFJB3CSSfhJg3Yr2LceclRDvZ8hzivWcQqQZ1LWBLivYsoSpauiixDYMMASh9byI+5tS2N2O5Fux4Mt3ga9vBu+dRHm94sIYuraDNgZmnqEHDqU0hNawzmH3Djv1wWMP4aPtO7ZtQwJ4HOY2i8vlAtbUWPoB1hjslGZZAc7hjxbCfZiQJ+cDaElKhbquMQwDpnnBOE1Q1kaXbl7gLle4hkWtSTfHWnhr49kQQmyJcy4OyLTWSNMUeZ7hdDqhvlwx8RGctRBd/wG7NvB9D9/18ANH2PeHKB+AxpiYctt1mOclOrhJiZtU2LxHWNaYvsvy2Afnf7LCPconYJZlqKo6XoEnqZ6kC/ezL1M+IhwGDj6OGMcJUqknwB0UwpPTJ2CeF2iaJhaE5rRPzXv/Evp7i8DDSDPGGJZlwbqucW6thdYm3rG/wV5WuSiKmPK6CqxCRCDBDsf/BaTDeZ7HwhRFibbtsKwCSusH4CP4Ew0pQrrYnI+Ypjk6eFXVTyM8xD6AR5XppUgp8ev+v1hyaESPWymFnDTkPEbIxwlC3OI6OaMfBPWkLT1TulIkx7FH3/0AluHakM4pZWUAAAAASUVORK5CYII=&amp;#x27;);background-size:cover;display:block&quot;&gt;&lt;/span&gt;
+  &lt;img class=&quot;gatsby-resp-image-image&quot; alt=&quot;预检请求&quot; title=&quot;预检请求&quot; src=&quot;/static/055043d5ae4a4518a0766584c8ce3c4e/fcda8/0006_%E9%A2%84%E6%A3%8001.png&quot; srcSet=&quot;/static/055043d5ae4a4518a0766584c8ce3c4e/12f09/0006_%E9%A2%84%E6%A3%8001.png 148w,/static/055043d5ae4a4518a0766584c8ce3c4e/e4a3f/0006_%E9%A2%84%E6%A3%8001.png 295w,/static/055043d5ae4a4518a0766584c8ce3c4e/fcda8/0006_%E9%A2%84%E6%A3%8001.png 590w,/static/055043d5ae4a4518a0766584c8ce3c4e/efc66/0006_%E9%A2%84%E6%A3%8001.png 885w,/static/055043d5ae4a4518a0766584c8ce3c4e/c83ae/0006_%E9%A2%84%E6%A3%8001.png 1180w,/static/055043d5ae4a4518a0766584c8ce3c4e/081ff/0006_%E9%A2%84%E6%A3%8001.png 2182w&quot; sizes=&quot;(max-width: 590px) 100vw, 590px&quot; style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;/&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;    &lt;/p&gt;&lt;p&gt;&lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position:relative;display:block;margin-left:auto;margin-right:auto;max-width:590px&quot;&gt;
+      &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom:69.5945945945946%;position:relative;bottom:0;left:0;background-image:url(&amp;#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAABwklEQVQ4y5VS7W7bMAz0+z/R/uwlBnQBWmD192csxTIlW7LlKygnmbtkKybgQFK2juSRkZ004C2ADa7voV9OMK9vMHGCKS9gfp7gygo2TrBMMxbv4dYVy7LAOfcJfBe9VwO+/RD4flJ4KwSavofSBlIpjERQ8gI1KGgiTErBjSMcEZy1D4SMSM8LOtpw1oAcCGkSo84z6EHBEsH+eodrWix1A19W8EUJX9WA93h2Ir8u94BoRJqm6PseUl5AxmA9/LwdsW1PEXHf27Y/MMagLMuALMsghIRSKmBdFmbB5v1fye6Et6O1RpIkyPMcXXeGNgZKjUFLf23xX2RPCbmypu0g5AWztfjf80DIGnJ1l0Fhl+N3dn9ol31/teu67rH3fxIapFmOqm6Q5UUA+3XTBlR1Haovyup639y/90KEQj4R8lCYkFFWdbC3x7c4L8pwx5aJ2PI39rmAB8KiKFDXTchIpEFEoXJrLeZ5hrUuaMs+LzJbxjTtNrrptO8hBUIhRNhDni4/Pib9cigs6LHCOI6DVjzlcSSQ1iGz/2L/vL+uzTTPgYjtOI57y01714WH0AsJISXa7hxiBvvduQ+J2b/hA6bPOjYEkEw9AAAAAElFTkSuQmCC&amp;#x27;);background-size:cover;display:block&quot;&gt;&lt;/span&gt;
+  &lt;img class=&quot;gatsby-resp-image-image&quot; alt=&quot;预检后的正式请求&quot; title=&quot;预检后的正式请求&quot; src=&quot;/static/6d76bee8e5a8ec2de516887739f9c301/fcda8/0006_%E9%A2%84%E6%A3%8002.png&quot; srcSet=&quot;/static/6d76bee8e5a8ec2de516887739f9c301/12f09/0006_%E9%A2%84%E6%A3%8002.png 148w,/static/6d76bee8e5a8ec2de516887739f9c301/e4a3f/0006_%E9%A2%84%E6%A3%8002.png 295w,/static/6d76bee8e5a8ec2de516887739f9c301/fcda8/0006_%E9%A2%84%E6%A3%8002.png 590w,/static/6d76bee8e5a8ec2de516887739f9c301/efc66/0006_%E9%A2%84%E6%A3%8002.png 885w,/static/6d76bee8e5a8ec2de516887739f9c301/c83ae/0006_%E9%A2%84%E6%A3%8002.png 1180w,/static/6d76bee8e5a8ec2de516887739f9c301/7ad71/0006_%E9%A2%84%E6%A3%8002.png 2338w&quot; sizes=&quot;(max-width: 590px) 100vw, 590px&quot; style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;/&gt;
+    &lt;/span&gt;
+(图来源于&lt;a href=&quot;https://github.com/amandakelake/blog/issues/62&quot;&gt;CORS 简单请求+预检请求（彻底理解跨域&lt;/a&gt;)&lt;/p&gt;&lt;h3 id=&quot;nginx反向代理&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86&quot; aria-label=&quot;nginx反向代理 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Nginx反向代理&lt;/h3&gt;&lt;p&gt;Nginx反向代理进行跨域的原理是：同源策略是浏览器的安全策略，并不是HTTP协议的一部分，所以服务器不需要遵循同源协议，服务器调用HTTP接口只是在使用HTTP协议，不会执行js脚本，所以不需要同源策略，所有我们只需要通过Nginx配置一个代理服务器做跳板机,对于浏览器而言，代理服务器就是源服务器，代理服务器接收到浏览器的请求后，反向代理将判断向何处（源服务器）转发请求，并将获得的内容返回给客户端。
+&lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position:relative;display:block;margin-left:auto;margin-right:auto;max-width:590px&quot;&gt;
+      &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/00751116014852b27fe9fbe811769319/6a068/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg&quot; style=&quot;display:block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom:37.16216216216216%;position:relative;bottom:0;left:0;background-image:url(&amp;#x27;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAHABQDASIAAhEBAxEB/8QAFwABAAMAAAAAAAAAAAAAAAAAAAECBf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIQAxAAAAHbgSoX/8QAGBABAAMBAAAAAAAAAAAAAAAAAgABAyH/2gAIAQEAAQUC7KpTEoj/xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAEDAQE/AT//xAAUEQEAAAAAAAAAAAAAAAAAAAAQ/9oACAECAQE/AT//xAAaEAACAgMAAAAAAAAAAAAAAAAAAQIREiEx/9oACAEBAAY/Aum2VN5M/8QAGRAAAgMBAAAAAAAAAAAAAAAAABEBITFh/9oACAEBAAE/IU09CmtmmbNn/9oADAMBAAIAAwAAABCMD//EABURAQEAAAAAAAAAAAAAAAAAABAR/9oACAEDAQE/EIf/xAAVEQEBAAAAAAAAAAAAAAAAAAAQEf/aAAgBAgEBPxCn/8QAGRABAQADAQAAAAAAAAAAAAAAAREAITFB/9oACAEBAAE/EDuZwJ5goZU2TWIE0t7p4bz/2Q==&amp;#x27;);background-size:cover;display:block&quot;&gt;&lt;/span&gt;
+  &lt;img class=&quot;gatsby-resp-image-image&quot; alt=&quot;反向代理&quot; title=&quot;反向代理&quot; src=&quot;/static/00751116014852b27fe9fbe811769319/1c72d/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg&quot; srcSet=&quot;/static/00751116014852b27fe9fbe811769319/a80bd/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg 148w,/static/00751116014852b27fe9fbe811769319/1c91a/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg 295w,/static/00751116014852b27fe9fbe811769319/1c72d/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg 590w,/static/00751116014852b27fe9fbe811769319/a8a14/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg 885w,/static/00751116014852b27fe9fbe811769319/6a068/0006_%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86.jpg 960w&quot; sizes=&quot;(max-width: 590px) 100vw, 590px&quot; style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0&quot; loading=&quot;lazy&quot; decoding=&quot;async&quot;/&gt;
+  &lt;/a&gt;
+    &lt;/span&gt;
+实现：通过nginx配置一个代理服务器（域名与domain1相同，端口不同）做跳板机，反向代理访问domain2接口，并且可以顺便修改cookie中domain信息，方便当前域cookie写入，实现跨域登录。  &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;javascript&quot; data-index=&quot;3&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk3&quot;&gt;// proxy服务器&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk12&quot;&gt;server&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;listen&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;       &lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;81&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;server_name&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;www&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;domain1&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;location&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; / {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;proxy_pass&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;   http:&lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;//www.domain2.com:8080;  #反向代理&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;proxy_cookie_domain&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;www&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;domain2&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;www&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;domain1&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;com&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;; #&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;修改cookie里域名&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        # &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;当用webpack&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;dev&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;server等中间件代理接口访问nignx时&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;，&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;此时无浏览器参与&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;，&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;故没有同源限制&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;，&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;下面的跨域配置可不启用&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;add_header&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Access&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Control&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Allow&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Origin&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; http:&lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;//www.domain1.com;  #当前端只跨域不带cookie时，可为*&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;add_header&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Access&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Control&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Allow&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Credentials&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;设置完成后，运行命令行nginx -s reload启动nginx&lt;/p&gt;&lt;h3 id=&quot;node中间件&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#node%E4%B8%AD%E9%97%B4%E4%BB%B6&quot; aria-label=&quot;node中间件 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;node中间件&lt;/h3&gt;&lt;p&gt;node中间件代理的原理类似Nginx反向代理，都是通过一个代理服务器实现数据的转发。具体的代码配置可以参照这里&lt;a href=&quot;https://juejin.cn/post/6844903767226351623&quot;&gt;九种跨域方式实现原理&lt;/a&gt;   &lt;/p&gt;&lt;h2 id=&quot;总结&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot; aria-label=&quot;总结 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;总结&lt;/h2&gt;&lt;ol&gt;&lt;li&gt;nginx反向代理和node中间件都是通过代理服务实现跨域；  &lt;/li&gt;&lt;li&gt;JSONP兼容性好，不是所有浏览器都支持CORS（例如IE10以下），但是只支持get请求；  &lt;/li&gt;&lt;li&gt;CORS支持所有类型的HTTP请求，是跨域HTTP请求的究极解决方案。  &lt;/li&gt;&lt;/ol&gt;&lt;p&gt;参考文章：&lt;br/&gt;
+&lt;a href=&quot;https://laravelacademy.org/post/9336&quot;&gt;图解正向代理、反向代理、透明代理&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://juejin.cn/post/6844903767226351623&quot;&gt;九种跨域方式实现原理（完整版）&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html&quot;&gt;浏览器同源政策及其规避方法 —阮一峰&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://www.ruanyifeng.com/blog/2016/04/cors.html&quot;&gt;跨域资源共享 CORS 详解 —阮一峰&lt;/a&gt;
+&lt;a href=&quot;https://segmentfault.com/a/1190000011145364&quot;&gt;前端常见跨域解决方案（全）&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://github.com/amandakelake/blog/issues/62&quot;&gt;CORS 简单请求+预检请求（彻底理解跨域&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS&quot;&gt;跨源资源共享（CORS）&lt;/a&gt;   &lt;/p&gt;&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &amp;gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &amp;#x27; &amp;#x27;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &amp;gt; .grvsc-code &amp;gt; .grvsc-line::before {
+    content: &amp;#x27; &amp;#x27;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+  .default-dark {
+    background-color: #1E1E1E;
+    color: #D4D4D4;
+  }
+  .default-dark .mtk4 { color: #569CD6; }
+  .default-dark .mtk1 { color: #D4D4D4; }
+  .default-dark .mtk11 { color: #DCDCAA; }
+  .default-dark .mtk12 { color: #9CDCFE; }
+  .default-dark .mtk8 { color: #CE9178; }
+  .default-dark .mtk3 { color: #6A9955; }
+  .default-dark .mtk10 { color: #4EC9B0; }
+  .default-dark .mtk7 { color: #B5CEA8; }
+  .default-dark .grvsc-line-highlighted::before {
+    background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
+    box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
+  }
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[useState原理解析]]></title><link>https://stayhungry.com.cn/articles/0005_useState原理解析/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0005_useState原理解析/</guid><pubDate>Wed, 13 Jul 2022 00:00:00 GMT</pubDate><content:encoded>&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &amp;gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &amp;#x27; &amp;#x27;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &amp;gt; .grvsc-code &amp;gt; .grvsc-line::before {
+    content: &amp;#x27; &amp;#x27;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[手写防抖节流]]></title><description><![CDATA[面试中，经常会让你手写防抖和节流，如果你还不知道，赶紧学起来吧 什么是防抖和节流 关于防抖（debounce）和节流（throttle）有个经典的比喻：
 有一个电梯，不考虑容量限制，有两种运行模式debounce和throttle，超时timer设置为15s…]]></description><link>https://stayhungry.com.cn/articles/0002_手写防抖节流/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0002_手写防抖节流/</guid><pubDate>Thu, 23 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E4%BB%80%E4%B9%88%E6%98%AF%E9%98%B2%E6%8A%96%E5%92%8C%E8%8A%82%E6%B5%81&quot;&gt;什么是防抖和节流&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%89%8B%E5%86%99%E8%8A%82%E6%B5%81%E5%87%BD%E6%95%B0throttle&quot;&gt;手写节流函数throttle&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%89%8B%E5%86%99%E9%98%B2%E6%8A%96%E5%87%BD%E6%95%B0debounce&quot;&gt;手写防抖函数debounce&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E9%98%B2%E6%8A%96%E5%92%8C%E8%8A%82%E6%B5%81%E7%9A%84%E5%90%84%E8%87%AA%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF&quot;&gt;防抖和节流的各自应用场景&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;面试中，经常会让你手写防抖和节流，如果你还不知道，赶紧学起来吧&lt;/p&gt;&lt;h2 id=&quot;什么是防抖和节流&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E4%BB%80%E4%B9%88%E6%98%AF%E9%98%B2%E6%8A%96%E5%92%8C%E8%8A%82%E6%B5%81&quot; aria-label=&quot;什么是防抖和节流 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;什么是防抖和节流&lt;/h2&gt;&lt;p&gt;关于防抖（debounce）和节流（throttle）有个经典的比喻：
 有一个电梯，不考虑容量限制，有两种运行模式debounce和throttle，超时timer设置为15s&lt;br/&gt;
 节流: 自从第一个人进来以后，每隔15s运送一次&lt;br/&gt;
@@ -157,6 +441,95 @@
     background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
     box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
   }
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[webpack工程化配置]]></title><link>https://stayhungry.com.cn/articles/0004_webpack工程化配置/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0004_webpack工程化配置/</guid><pubDate>Wed, 15 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &amp;gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &amp;#x27; &amp;#x27;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &amp;gt; .grvsc-code &amp;gt; .grvsc-line::before {
+    content: &amp;#x27; &amp;#x27;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
 &lt;/style&gt;</content:encoded></item><item><title><![CDATA[EventHub发布订阅模式]]></title><description><![CDATA[在面试中会经常被问：如何实现一个Event，如果你还不知道什么是发布订阅模式，一起学起来~ 发布订阅模式 Pub-sub pattern 发布订阅是一种主流框架都采用的一种设计模式，而EventHub是基于这种设计模式实现的一种实例.
  
 举个例子，有A,B,C…]]></description><link>https://stayhungry.com.cn/articles/0001_EventHub发布订阅模式/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0001_EventHub发布订阅模式/</guid><pubDate>Sat, 04 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F-pub-sub-pattern&quot;&gt;发布订阅模式 Pub-sub pattern&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%89%8B%E5%86%99eventhub&quot;&gt;手写EventHub&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81&quot;&gt;测试代码&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0&quot;&gt;参考文章&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;在面试中会经常被问：如何实现一个Event，如果你还不知道什么是发布订阅模式，一起学起来~&lt;/p&gt;&lt;h2 id=&quot;发布订阅模式-pub-sub-pattern&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F-pub-sub-pattern&quot; aria-label=&quot;发布订阅模式 pub sub pattern permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;发布订阅模式 Pub-sub pattern&lt;/h2&gt;&lt;p&gt;发布订阅是一种主流框架都采用的一种设计模式，而EventHub是基于这种设计模式实现的一种实例.
@@ -345,7 +718,7 @@
     background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
     box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
   }
-&lt;/style&gt;</content:encoded></item><item><title><![CDATA[CSS画一个三角形]]></title><description><![CDATA[最近看到一个挺有意思的CSS问题，问怎么用CSS实现一个三角形，让我们一起看一下吧   借助一个正方形 我们考虑到div的边框都是直线，所以直接画行不通，可以借助一个正方形实现，画一个正方形，width和height设置为0， 然后设置border-top/border…]]></description><link>https://stayhungry.com.cn/articles/0003_CSS画三角形/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0003_CSS画三角形/</guid><pubDate>Sat, 04 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%80%9F%E5%8A%A9%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%96%B9%E5%BD%A2&quot;&gt;借助一个正方形&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E4%B8%8B%E4%B8%80%E6%AD%A5%E5%AE%9E%E7%8E%B0&quot;&gt;下一步实现&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%8E%A2%E7%B4%A2&quot;&gt;进一步探索&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;最近看到一个挺有意思的CSS问题，问怎么用CSS实现一个三角形，让我们一起看一下吧  &lt;/p&gt;&lt;h2 id=&quot;借助一个正方形&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%80%9F%E5%8A%A9%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%96%B9%E5%BD%A2&quot; aria-label=&quot;借助一个正方形 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;借助一个正方形&lt;/h2&gt;&lt;p&gt;我们考虑到div的边框都是直线，所以直接画行不通，可以借助一个正方形实现，画一个正方形，width和height设置为0， 然后设置border-top/border-bottom/border-left/border-right的color, style和width属性实现正方形切分成四个三角形，上代码：&lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;rss&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;!&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;DOCTYPE&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[CSS画一个三角形]]></title><description><![CDATA[最近看到一个挺有意思的CSS问题，问怎么用CSS实现一个三角形，让我们一起看一下吧   借助一个正方形 我们考虑到div的边框都是直线，所以直接画行不通，可以借助一个正方形实现，画一个正方形，width和height设置为0， 然后设置border-top/border…]]></description><link>https://stayhungry.com.cn/articles/0003_CSS画三角形/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0003_CSS画三角形/</guid><pubDate>Thu, 02 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%80%9F%E5%8A%A9%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%96%B9%E5%BD%A2&quot;&gt;借助一个正方形&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E4%B8%8B%E4%B8%80%E6%AD%A5%E5%AE%9E%E7%8E%B0&quot;&gt;下一步实现&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E8%BF%9B%E4%B8%80%E6%AD%A5%E6%8E%A2%E7%B4%A2&quot;&gt;进一步探索&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;最近看到一个挺有意思的CSS问题，问怎么用CSS实现一个三角形，让我们一起看一下吧  &lt;/p&gt;&lt;h2 id=&quot;借助一个正方形&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%80%9F%E5%8A%A9%E4%B8%80%E4%B8%AA%E6%AD%A3%E6%96%B9%E5%BD%A2&quot; aria-label=&quot;借助一个正方形 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;借助一个正方形&lt;/h2&gt;&lt;p&gt;我们考虑到div的边框都是直线，所以直接画行不通，可以借助一个正方形实现，画一个正方形，width和height设置为0， 然后设置border-top/border-bottom/border-left/border-right的color, style和width属性实现正方形切分成四个三角形，上代码：&lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;rss&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;!&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;DOCTYPE&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;lang&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;en&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;head&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;meta&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;charset&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;UTF-8&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
