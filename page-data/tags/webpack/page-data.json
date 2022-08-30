@@ -1,5 +1,1 @@
-{
-    "componentChunkName": "component---src-templates-tag-posts-js",
-    "path": "/tags/webpack",
-    "result": {"data":{"site":{"siteMetadata":{"title":"周大丢的blog","author":"周大丢"}},"mdx":null},"pageContext":{"slug":"webpack","posts":[{"node":{"fields":{"slug":"/0004_webpack工程化配置/"},"frontmatter":{"title":"webpack工程化配置","layout":"blog-post","tags":["webpack"],"date":"2022-06-15","description":"webpack工程化，config"}}}]}},
-    "staticQueryHashes": ["440568431","946521183"]}
+{"componentChunkName":"component---src-templates-tag-posts-js","path":"/tags/webpack","result":{"data":{"site":{"siteMetadata":{"title":"周大丢的blog","author":"周大丢"}},"mdx":null},"pageContext":{"slug":"webpack","posts":[{"node":{"fields":{"slug":"/0004_webpack工程化配置/"},"frontmatter":{"title":"webpack工程化配置","layout":"blog-post","tags":["webpack"],"date":"2022-06-15","description":"webpack工程化，config"}}}]}},"staticQueryHashes":["440568431","946521183"]}

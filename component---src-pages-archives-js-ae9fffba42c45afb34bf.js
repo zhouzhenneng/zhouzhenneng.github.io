@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkgatsby_blog=self.webpackChunkgatsby_blog||[]).push([[454],{8192:function(e,t,a){a.r(t);var l=a(7294),n=a(4982),c=a(3370);t.default=function(e){var t=e.location;return l.createElement(n.Z,{location:t},l.createElement(c.Z,{title:"Archives page"}),l.createElement("div",null,"to do"))}}}]);
+//# sourceMappingURL=component---src-pages-archives-js-ae9fffba42c45afb34bf.js.map
