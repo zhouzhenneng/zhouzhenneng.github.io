@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[周大丢的博客]]></title><description><![CDATA[A personal blog powered by gatsby, styled components.]]></description><link>https://stayhungry.com.cn</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 04 Sep 2022 07:59:47 GMT</lastBuildDate><item><title><![CDATA[No title]]></title><link>https://stayhungry.com.cn/0011_React_hooks/</link><guid isPermaLink="false">https://stayhungry.com.cn/0011_React_hooks/</guid><content:encoded>&lt;style class=&quot;grvsc-styles&quot;&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[周大丢的博客]]></title><description><![CDATA[A personal blog powered by gatsby, styled components.]]></description><link>https://stayhungry.com.cn</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 04 Sep 2022 14:56:51 GMT</lastBuildDate><item><title><![CDATA[No title]]></title><link>https://stayhungry.com.cn/0011_React_hooks/</link><guid isPermaLink="false">https://stayhungry.com.cn/0011_React_hooks/</guid><content:encoded>&lt;style class=&quot;grvsc-styles&quot;&gt;
   .grvsc-container {
     overflow: auto;
     position: relative;
@@ -364,7 +364,97 @@ xhr.send();     &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;浏览器发现PUT方法�
     background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
     box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
   }
-&lt;/style&gt;</content:encoded></item><item><title><![CDATA[useState原理解析]]></title><description><![CDATA[今天我们一起探究一下useState的实现原理 前言 在React函数组件hooks中，我们用的最多的应该就是useState了，但是我们真的了解它的原理吗？先让我们一起来看一个例子:  很简单，这就是页面上有一个button组件，点击+1，count显示的数字就加…]]></description><link>https://stayhungry.com.cn/articles/0005_useState原理解析/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0005_useState原理解析/</guid><pubDate>Wed, 13 Jul 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%88%9D%E6%AD%A5%E5%AE%9E%E7%8E%B0usestate&quot;&gt;初步实现useState&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%94%B9%E8%BF%9Busestate&quot;&gt;改进useState&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#usestate%E4%BE%9D%E8%B5%96%E5%AE%9A%E4%B9%89%E9%A1%BA%E5%BA%8F&quot;&gt;useState依赖定义顺序&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#usestate%E6%98%AF%E5%90%8C%E6%AD%A5%E8%BF%98%E6%98%AF%E5%BC%82%E6%AD%A5%E7%9A%84&quot;&gt;useState是同步还是异步的&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot;&gt;总结&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5&quot;&gt;参考链接&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;今天我们一起探究一下useState的实现原理&lt;/p&gt;&lt;h2 id=&quot;前言&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot; aria-label=&quot;前言 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在React函数组件hooks中，我们用的最多的应该就是useState了，但是我们真的了解它的原理吗？先让我们一起来看一个例子: &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;js&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;import&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, { &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; } &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;react&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[webpack工程化配置]]></title><description><![CDATA[最近在做一个UI组件库项目，记录一下配置webpack的过程，技术栈为webpack + react + typescript 前言 我们先对比一下gulp, webpack和vite…]]></description><link>https://stayhungry.com.cn/articles/0004_webpack工程化配置/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0004_webpack工程化配置/</guid><pubDate>Fri, 15 Jul 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%BC%80%E5%A7%8B%E9%85%8D%E7%BD%AE&quot;&gt;开始配置&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99&quot;&gt;参考资料&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;最近在做一个UI组件库项目，记录一下配置webpack的过程，技术栈为webpack + react + typescript&lt;/p&gt;&lt;h2 id=&quot;前言&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot; aria-label=&quot;前言 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;我们先对比一下gulp, webpack和vite。
+首先它们都是用来编译构建各种代码的工具，因为很多代码需要经过编译才能运行在目标环境中，例如jsx语法需要babel编译成js语法，less/sass要经过各自的编译器转换成css代码。&lt;/p&gt;&lt;ol&gt;&lt;li&gt;最早出现的是&lt;strong&gt;任务运行器&lt;/strong&gt;，&lt;strong&gt;gulp&lt;/strong&gt;就是其中一。gulp主要就是组织整个编译流程，指定对什么文件用什么编译器编译，然后输出到哪个目录，任务之间可以设置先后顺序还有并行串行；&lt;/li&gt;&lt;li&gt;gulp就是组织任务，由于不参与对具体代码的处理，也就没有办法进行全局的优化。后来就出现了&lt;strong&gt;webpack&lt;/strong&gt;,它是一种&lt;strong&gt;打包工具&lt;/strong&gt;，它和任务运行器不同，webpack会分析模块依赖关系，从entry模块开始构建一个依赖图，会把构建过程中用到的js,css等都作为它的依赖，然后对依赖图的每个节点用对应的编译器处理，基于这样的依赖关系可以实现tree shaking, code splitting等优化；&lt;/li&gt;&lt;li&gt;但是基于依赖关系这种打包方式也不是完美的，主要是每次都要构建整个依赖，当项目模块很多时就会打包的比较久（虽然有HMR热重载）。这就导致了&lt;strong&gt;vite&lt;/strong&gt;的出现，它是&lt;strong&gt;no bundle&lt;/strong&gt;的方案，也就是不打包。它是基于浏览器对es module的支持，依赖分析可以交给浏览器来做，vite只需要加载和编译对应模块就行，但是也只是解决了开发环境下打包比较慢的问题，生产环境还是需要打包。&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;对比上面三种工具之后，我们总结一下webpack的作用：&lt;/p&gt;&lt;ul&gt;&lt;li&gt;模块打包：将不同模块的文件整合到一起；&lt;/li&gt;&lt;li&gt;编译兼容：通过loader机制，对jsx,typescript等语法进行编译转换；&lt;/li&gt;&lt;li&gt;能力扩展：通过各种plugin，可以实现按需加载，代码压缩等一系列功能。&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;开始配置&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%BC%80%E5%A7%8B%E9%85%8D%E7%BD%AE&quot; aria-label=&quot;开始配置 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;开始配置&lt;/h2&gt;&lt;h2 id=&quot;参考资料&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99&quot; aria-label=&quot;参考资料 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;参考资料&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://juejin.cn/post/7124601707702517797&quot;&gt;你能给前端工程化下个定义么？&lt;/a&gt;    &lt;/p&gt;&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &amp;gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &amp;#x27; &amp;#x27;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &amp;gt; .grvsc-code &amp;gt; .grvsc-line::before {
+    content: &amp;#x27; &amp;#x27;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[useState原理解析]]></title><description><![CDATA[今天我们一起探究一下useState的实现原理 前言 在React函数组件hooks中，我们用的最多的应该就是useState了，但是我们真的了解它的原理吗？先让我们一起来看一个例子:  很简单，这就是页面上有一个button组件，点击+1，count显示的数字就加…]]></description><link>https://stayhungry.com.cn/articles/0005_useState原理解析/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0005_useState原理解析/</guid><pubDate>Wed, 13 Jul 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%88%9D%E6%AD%A5%E5%AE%9E%E7%8E%B0usestate&quot;&gt;初步实现useState&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%94%B9%E8%BF%9Busestate&quot;&gt;改进useState&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#usestate%E4%BE%9D%E8%B5%96%E5%AE%9A%E4%B9%89%E9%A1%BA%E5%BA%8F&quot;&gt;useState依赖定义顺序&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#setstate%E6%98%AF%E5%90%8C%E6%AD%A5%E8%BF%98%E6%98%AF%E5%BC%82%E6%AD%A5%E7%9A%84&quot;&gt;setState是同步还是异步的&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot;&gt;总结&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5&quot;&gt;参考链接&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;今天我们一起探究一下useState的实现原理&lt;/p&gt;&lt;h2 id=&quot;前言&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%89%8D%E8%A8%80&quot; aria-label=&quot;前言 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在React函数组件hooks中，我们用的最多的应该就是useState了，但是我们真的了解它的原理吗？先让我们一起来看一个例子: &lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;js&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;import&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, { &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; } &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;react&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;App&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;() {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;const&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; [&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;setCount&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;] = &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
@@ -463,7 +553,8 @@ xhr.send();     &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;浏览器发现PUT方法�
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;const&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; [&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;countB&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;setCountB&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;] = &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;//React Hook &amp;quot;useState&amp;quot; is called conditionally. React Hooks must be called in the exact same order in every component render. (react-hooks/rules-of-hooks)eslint&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;usestate是同步还是异步的&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#usestate%E6%98%AF%E5%90%8C%E6%AD%A5%E8%BF%98%E6%98%AF%E5%BC%82%E6%AD%A5%E7%9A%84&quot; aria-label=&quot;usestate是同步还是异步的 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;useState是同步还是异步的&lt;/h2&gt;&lt;p&gt;我们先看一个例子：&lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;js&quot; data-index=&quot;6&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;import&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, { &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; } &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;react&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;//React Hook &amp;quot;useState&amp;quot; is called conditionally. React Hooks must be called in the exact same order in every component render. (react-hooks/rules-of-hooks)eslint&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;setstate是同步还是异步的&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#setstate%E6%98%AF%E5%90%8C%E6%AD%A5%E8%BF%98%E6%98%AF%E5%BC%82%E6%AD%A5%E7%9A%84&quot; aria-label=&quot;setstate是同步还是异步的 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;setState是同步还是异步的&lt;/h2&gt;&lt;p&gt;首先我们讨论setState是同步还是异步的，不是setTimeout, Promise那种异步，是指setState后state是否立马改变了，是否立马render了。
+我们先看一个例子：&lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;js&quot; data-index=&quot;6&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;import&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;React&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, { &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;useState&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; } &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;react&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;export&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;App&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;() {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;render&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
@@ -482,10 +573,11 @@ xhr.send();     &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;浏览器发现PUT方法�
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;      &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;  );&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
-&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一开始我想验证useState是同步还是异步，用上面的代码运行，发现这不是异步吗，每次打印的都是旧值呀。但是发现没有这么简单:&lt;/p&gt;&lt;ol&gt;&lt;li&gt;就像我们上面模拟的setState，它的逻辑其实是同步的，我们调用setState时，react会对这这一系列的setter做合并处理，异步更新该函数组件对应的hooks链表中的值，然后触发re-render，这么听起来的确是”异步“的。&lt;/li&gt;&lt;li&gt;关于console.log()值没有发生变化的原因，其实和hooks的Capture value特性有关，可以认为每次Render的内容都会形成一个snapshot并保留下来，当状态变更而re-render的时候，就会形成N个Render的状态，而每个Render状态都有自己固定不变的props和state，所有console.log()打印的只能值当前状态的旧值，无论ustState是同步还是异步的。如果你想绕过Capture Value特性，你可以用useRef，可以认为red在所有render过程中都保持着唯一的应用，因此对所有ref的赋值和取值拿到的都只有一个最终状态。&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;回到最初的问题，useState到底是同步还是异步的呢？其实讨论这个问题要根据react的版本：   &lt;/p&gt;&lt;ul&gt;&lt;li&gt;在react 18.0之后，react使用新的auto batching机制，在新的机制下，无论是通过SyntheticEvent（合成事件，例onclick),原生的event还是setTimeout等，任何调用useState的方式都会被当做异步事件&lt;/li&gt;&lt;li&gt;在react 18.0以前:&lt;ul&gt;&lt;li&gt;setState只在合成事件（jsx中常见的onClick、onChange这些都是合成事件）和hooks函数中是异步的；&lt;/li&gt;&lt;li&gt;在原生事件和setTimeout/setIterval， Promise.then()等都是同步的，这些都不会进入react的调度流程。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;总结&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot; aria-label=&quot;总结 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;总结&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;每个函数组件对应一个react节点，每个节点保存着自己的state和index；&lt;/li&gt;&lt;li&gt;index由useState出现的顺序决定的，setState会修改state并触发render；&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;参考链接&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5&quot; aria-label=&quot;参考链接 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;参考链接&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://juejin.cn/post/7084614766152384526&quot;&gt;解析useState的基本原理&lt;/a&gt;&lt;br/&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;一开始我想验证setState是同步还是异步，用上面的代码运行，发现这不是异步吗，每次打印的都是旧值呀。但是发现没有这么简单:&lt;/p&gt;&lt;ol&gt;&lt;li&gt;就像我们上面模拟的setState，它的逻辑其实是同步的，我们调用setState时，react会对这这一系列的setter做合并处理，异步更新该函数组件对应的hooks链表中的值，然后触发re-render，这么听起来的确是”异步“的。&lt;/li&gt;&lt;li&gt;关于console.log()值没有发生变化的原因，其实和hooks的Capture value特性有关，可以认为每次Render的内容都会形成一个snapshot并保留下来，当状态变更而re-render的时候，就会形成N个Render的状态，而每个Render状态都有自己固定不变的props和state，所有console.log()打印的只能值当前状态的旧值，无论setState是同步还是异步的。如果你想绕过Capture Value特性，你可以用useRef，可以认为red在所有render过程中都保持着唯一的应用，因此对所有ref的赋值和取值拿到的都只有一个最终状态。&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;回到最初的问题，setState到底是同步还是异步的呢？其实讨论这个问题要根据react的版本：   &lt;/p&gt;&lt;ul&gt;&lt;li&gt;在react 18.0之后，react使用新的auto batching机制，在新的机制下，无论是通过SyntheticEvent（合成事件，例onclick),原生的event还是setTimeout等，任何调用setState的方式都会被当做异步事件&lt;/li&gt;&lt;li&gt;在react 18.0以前:&lt;ul&gt;&lt;li&gt;setState只在合成事件（jsx中常见的onClick、onChange这些都是合成事件）和hooks函数中是异步的；&lt;/li&gt;&lt;li&gt;在原生事件和setTimeout/setIterval， Promise.then()等都是同步的，这些都不会进入react的调度流程。&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;总结&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E6%80%BB%E7%BB%93&quot; aria-label=&quot;总结 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;总结&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;每个函数组件对应一个react节点，每个节点保存着自己的state和index；&lt;/li&gt;&lt;li&gt;index由useState出现的顺序决定的，setState会修改state并触发render；&lt;/li&gt;&lt;li&gt;setState在react 18以后，由于用了createRoot的api,所有的都是异步批量执行。&lt;/li&gt;&lt;/ul&gt;&lt;h2 id=&quot;参考链接&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5&quot; aria-label=&quot;参考链接 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;参考链接&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://juejin.cn/post/7084614766152384526&quot;&gt;解析useState的基本原理&lt;/a&gt;&lt;br/&gt;
 &lt;a href=&quot;https://www.cnblogs.com/WindrunnerMax/p/16211267.html&quot;&gt;手写useState与useEffect&lt;/a&gt;&lt;br/&gt;
 &lt;a href=&quot;https://segmentfault.com/a/1190000018639033&quot;&gt;精读《useEffect 完全指南》&lt;/a&gt;&lt;br/&gt;
-&lt;a href=&quot;https://juejin.cn/post/7106380768582041637&quot;&gt;react新手的困惑——state hooks 是同步还是异步&lt;/a&gt;&lt;/p&gt;&lt;style class=&quot;grvsc-styles&quot;&gt;
+&lt;a href=&quot;https://juejin.cn/post/7106380768582041637&quot;&gt;react新手的困惑——state hooks 是同步还是异步&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&quot;https://juejin.cn/post/7108362046369955847&quot;&gt;React 的 setState 是同步还是异步？&lt;/a&gt;    &lt;/p&gt;&lt;style class=&quot;grvsc-styles&quot;&gt;
   .grvsc-container {
     overflow: auto;
     position: relative;
@@ -1146,95 +1238,6 @@ render函数一般有以下返回值：&lt;/p&gt;&lt;ul&gt;&lt;li&gt;react元素
     background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
     box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
   }
-&lt;/style&gt;</content:encoded></item><item><title><![CDATA[webpack工程化配置]]></title><link>https://stayhungry.com.cn/articles/0004_webpack工程化配置/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0004_webpack工程化配置/</guid><pubDate>Wed, 15 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;style class=&quot;grvsc-styles&quot;&gt;
-  .grvsc-container {
-    overflow: auto;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-    padding-top: 1rem;
-    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
-    padding-bottom: 1rem;
-    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
-    border-radius: 8px;
-    border-radius: var(--grvsc-border-radius, 8px);
-    font-feature-settings: normal;
-    line-height: 1.4;
-  }
-  
-  .grvsc-code {
-    display: table;
-  }
-  
-  .grvsc-line {
-    display: table-row;
-    box-sizing: border-box;
-    width: 100%;
-    position: relative;
-  }
-  
-  .grvsc-line &amp;gt; * {
-    position: relative;
-  }
-  
-  .grvsc-gutter-pad {
-    display: table-cell;
-    padding-left: 0.75rem;
-    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
-  }
-  
-  .grvsc-gutter {
-    display: table-cell;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-  }
-  
-  .grvsc-gutter::before {
-    content: attr(data-content);
-  }
-  
-  .grvsc-source {
-    display: table-cell;
-    padding-left: 1.5rem;
-    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
-    padding-right: 1.5rem;
-    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
-  }
-  
-  .grvsc-source:empty::after {
-    content: &amp;#x27; &amp;#x27;;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-  }
-  
-  .grvsc-gutter + .grvsc-source {
-    padding-left: 0.75rem;
-    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
-  }
-  
-  /* Line transformer styles */
-  
-  .grvsc-has-line-highlighting &amp;gt; .grvsc-code &amp;gt; .grvsc-line::before {
-    content: &amp;#x27; &amp;#x27;;
-    position: absolute;
-    width: 100%;
-  }
-  
-  .grvsc-line-diff-add::before {
-    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
-  }
-  
-  .grvsc-line-diff-del::before {
-    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
-  }
-  
-  .grvsc-line-number {
-    padding: 0 2px;
-    text-align: right;
-    opacity: 0.7;
-  }
-  
 &lt;/style&gt;</content:encoded></item><item><title><![CDATA[CSS垂直居中的方法汇总]]></title><description><![CDATA[回顾一下常用的垂直居中的几种方式 1. flex方法 给父元素设置display：flex,再设置垂直水平居中就可以了 代码如下： 2.绝对定位和相对定位 父元素设置position: relative; 子元素设置position: relative; left/bottom…]]></description><link>https://stayhungry.com.cn/articles/0009_CSS垂直居中方法汇总/</link><guid isPermaLink="false">https://stayhungry.com.cn/articles/0009_CSS垂直居中方法汇总/</guid><pubDate>Thu, 09 Jun 2022 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;Table of Contents&lt;/h2&gt;&lt;ul&gt;&lt;li&gt;&lt;ul&gt;&lt;li&gt;&lt;a href=&quot;#1-flex%E6%96%B9%E6%B3%95&quot;&gt;1. flex方法&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#2%E7%BB%9D%E5%AF%B9%E5%AE%9A%E4%BD%8D%E5%92%8C%E7%9B%B8%E5%AF%B9%E5%AE%9A%E4%BD%8D&quot;&gt;2.绝对定位和相对定位&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#3-absolute--relative--translate&quot;&gt;3. absolute + relative + translate&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#4%E6%B7%BB%E5%8A%A0%E4%BC%AA%E5%85%83%E7%B4%A0&quot;&gt;4.添加伪元素&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#5displaytable-cell&quot;&gt;5.display:table-cell&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li&gt;&lt;a href=&quot;#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99&quot;&gt;参考资料：&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;回顾一下常用的垂直居中的几种方式&lt;/p&gt;&lt;h3 id=&quot;1-flex方法&quot; style=&quot;position:relative&quot;&gt;&lt;a href=&quot;#1-flex%E6%96%B9%E6%B3%95&quot; aria-label=&quot;1 flex方法 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;1. flex方法&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;给父元素设置display：flex,再设置垂直水平居中就可以了&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;代码如下：&lt;/p&gt;&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;css&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk6&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; class=&amp;quot;parent&amp;quot;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk6&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; class=&amp;quot;child&amp;quot;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;      “Everyone should learn how to program &lt;/span&gt;&lt;span class=&quot;mtk6&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; computer because it teaches you how to think” —&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
