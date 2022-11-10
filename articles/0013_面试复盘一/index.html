@@ -47,7 +47,7 @@ data-styled.g20[id="blog-post__TagsWrap-sc-7rm6jt-2"]{content:"kxGepd,"}/*!sc*/
 <span class="grvsc-line"><span class="grvsc-source"><span class="mtk17">&lt;/</span><span class="mtk4">form</span><span class="mtk17">&gt;</span></span></span></code></pre><p>(3)由于get是读，post是写，所以get打开的页面刷新是无害的，post打开的页面刷新需要确认，例如post是下一个订单，你刷新页面会有提示，避免你多次提交订单。<br/>
 <!-- -->(4)由于get是读，post是写，所以get结果会被缓存，post结果不会被缓存。get结果可以被浏览器缓存，但是post的结果被缓存是没有意义的，例如你post下一个订单，服务器创建一个订单，然后返回下单成功的界面，这个页面是不能被缓存的，如果post的结果被浏览器缓存了，下次下单就可以不向服务器发送请求了，直接返回本地缓存的下单成功的页面，但是又没有真的在服务器上下单。<br/>
 <!-- -->(5)get打开的页面可以被书签收藏，post打开的不行，因为post可能有副作用，如果你点一下书签就下一个单，是不是很离谱。    </p><p>区别二：<strong>请求参数</strong><br/>
-<!-- -->下面这些区别也仅限于通常情况下浏览器发请求的场景，HTPP协议本身没有任何限制，但是我们通常是这么实现的。<br/>
+<!-- -->下面这些区别也仅限于通常情况下浏览器发请求的场景，HTTP协议本身没有任何限制，但是我们通常是这么实现的。<br/>
 <!-- -->(1)通常，get请求参数一般放在url里，而post请求都来自表单提交，每次提交表单数据被浏览器编码到HTTP请求的body里，那么get请求body里面可不可以放数据呢？可以，但是服务器会忽略，但是你如果通过在浏览器输入URL或者a标签中的href的url发送get请求的话，也没有办法把数据放到body里面。<br/>
 <!-- -->(2)post用body来传递参数，get用url传输，更加容易看到。但是从攻击者的角度来说，get和post都不安全，因为HTTP本身就是明文协议，每个HTTP请求和返回的每个byte都是在网络上明文传播的，不管URL，header还是body,所以为了避免数据传输被窃取，还是建议用https。<br/>
 <!-- -->(3)关于url长度方面，http协议本身对URL的长度没有任何限制的，一般都是浏览器或者服务端进行限制，例如Chrome限制是2MB，为啥要有长度限制，主要是解析字符串的时候要分配内存，URL必须当成一个整体看待，所以一般会进行限制。    </p><p>区别三：<strong>TCP packet</strong><br/>
